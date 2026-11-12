@@ -1,3 +1,3 @@
 ### Module: docker
 
-The project ships as a Docker image to `ghcr.io/fileboss/<project>`, built and pushed by CI when a `vX.Y.Z` tag is pushed. Keep the Dockerfile multi-stage and the runtime image minimal.
+Pushing a `vX.Y.Z` tag builds the root `Dockerfile` and publishes `ghcr.io/<owner>/<repo>:X.Y.Z` (`.github/workflows/docker.yml`). Write the Dockerfile when it is first needed: multi-stage, minimal runtime image, no secrets baked in.

@@ -14,6 +14,7 @@ Usage:
   sdlc.py status [--json]
   sdlc.py next [--item <slug>]
   sdlc.py set modules|autonomy|stop_check <value>
+  sdlc.py bump X.Y.Z
 """
 import argparse
 import json
@@ -117,7 +118,7 @@ def load_config():
 def load_profile(name):
     path = os.path.join(PLUGIN_ROOT, "profiles", name + ".yml")
     if not os.path.exists(path):
-        available = sorted(p[:-4] for p in os.listdir(os.path.join(PLUGIN_ROOT, "profiles")))
+        available = sorted(p[:-4] for p in os.listdir(os.path.join(PLUGIN_ROOT, "profiles")) if p.endswith(".yml"))
         die("unknown profile {}; available: {}".format(name, ", ".join(available)))
     with open(path) as f:
         return parse_yaml(f.read())
@@ -191,17 +192,21 @@ def render_makefile(cfg):
              "# Edit freely: sdlc never overwrites an existing Makefile.",
              ".PHONY: " + " ".join(TARGETS), ""]
     for target in TARGETS:
-        lines.append(target + ":")
+        cmds = []
         for spec in cfg["profiles"]:
             name, _, subdir = spec.partition(":")
             cmd = load_profile(name).get(target)
-            if not cmd:
-                continue
-            if subdir:
+            if cmd and subdir:
                 # A leading @ (silent recipe) must stay first on the line.
                 silent = "@" if cmd.startswith("@") else ""
                 cmd = "{}cd {} && {}".format(silent, subdir, cmd.lstrip("@"))
-            lines.append("\t" + cmd)
+            if cmd:
+                cmds.append(cmd)
+        if target == "dev" and len(cmds) > 1:
+            # Dev servers run side by side; Ctrl-C stops them all.
+            cmds = ["trap 'kill 0' INT; " + " & ".join("(" + c.lstrip("@") + ")" for c in cmds) + " & wait"]
+        lines.append(target + ":")
+        lines.extend("\t" + c for c in cmds)
         lines.append("")
     write("Makefile", "\n".join(lines))
     return True
@@ -229,17 +234,39 @@ def render_agent_docs(cfg):
             write(path, read(os.path.join(PLUGIN_ROOT, "templates", "agents", name)))
 
 
+def render_workflows(cfg):
+    """GitHub Actions for the ci and docker modules, written once, then the user's."""
+    made = []
+    github = os.path.join(PLUGIN_ROOT, "templates", "github")
+    ci = os.path.join(".github", "workflows", "ci.yml")
+    if "ci" in cfg["modules"] and not os.path.exists(ci):
+        steps = []
+        for spec in cfg["profiles"]:
+            name, _, subdir = spec.partition(":")
+            snippet = read(os.path.join(PLUGIN_ROOT, "profiles", "ci", name + ".yml"))
+            steps.append(snippet.replace("{dir}", subdir + "/" if subdir else "").rstrip("\n"))
+        write(ci, read(os.path.join(github, "ci.yml")).replace("{setup}", "\n".join(steps)))
+        made.append(ci)
+    docker = os.path.join(".github", "workflows", "docker.yml")
+    if "docker" in cfg["modules"] and not os.path.exists(docker):
+        write(docker, read(os.path.join(github, "docker.yml")))
+        made.append(docker)
+    return made
+
+
 def render(cfg):
     render_agents(cfg)
     render_claude_md()
     render_agent_docs(cfg)
+    workflows = render_workflows(cfg)
     made = render_makefile(cfg)
     if not os.path.exists("BACKLOG.md"):
         write("BACKLOG.md", read(os.path.join(PLUGIN_ROOT, "templates", "BACKLOG.md")))
     if not os.path.exists(STATE):
         write(STATE, json.dumps({"item": None, "phase": None}, indent=2) + "\n")
     ensure_lines(".gitignore", [".env", ".env.*", "!.env.example"])
-    print("rendered AGENTS.md, CLAUDE.md" + (", Makefile" if made else " (Makefile kept)"))
+    print("rendered AGENTS.md, CLAUDE.md" + (", Makefile" if made else " (Makefile kept)")
+          + "".join(", " + w for w in workflows))
 
 
 # --- commands --------------------------------------------------------------
@@ -305,6 +332,31 @@ def cmd_set(args):
     render(load_config())
 
 
+VERSION_FILES = [
+    # (file, pattern of the line holding the version); the first match is bumped.
+    ("package.json", r'^(\s*"version"\s*:\s*")[^"]+(")'),
+    ("pyproject.toml", r'^(version\s*=\s*")[^"]+(")'),
+    ("Cargo.toml", r'^(version\s*=\s*")[^"]+(")'),
+]
+
+
+def cmd_bump(args):
+    """Write the release version into the manifests the profiles use."""
+    import re
+    if not re.match(r"^\d+\.\d+\.\d+$", args.version):
+        die("version must be X.Y.Z")
+    dirs = [spec.partition(":")[2] or "." for spec in load_config()["profiles"]] or ["."]
+    for d in dirs:
+        for name, pattern in VERSION_FILES:
+            path = os.path.normpath(os.path.join(d, name))
+            if not os.path.exists(path):
+                continue
+            text, n = re.subn(pattern, r"\g<1>" + args.version + r"\g<2>", read(path), count=1, flags=re.M)
+            if n:
+                write(path, text)
+                print("bumped " + path)
+
+
 def cmd_status(args):
     cfg = load_config()
     state = json.loads(read(STATE)) if os.path.exists(STATE) else {}
@@ -340,6 +392,8 @@ def main():
     p.add_argument("--json", action="store_true")
     p = sub.add_parser("next")
     p.add_argument("--item")
+    p = sub.add_parser("bump")
+    p.add_argument("version")
     p = sub.add_parser("set")
     p.add_argument("key")
     p.add_argument("value")
@@ -348,6 +402,8 @@ def main():
         cmd_init(args)
     elif args.cmd == "set":
         cmd_set(args)
+    elif args.cmd == "bump":
+        cmd_bump(args)
     elif args.cmd == "next":
         cmd_next(args)
     elif args.cmd == "render":

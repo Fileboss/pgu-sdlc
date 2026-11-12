@@ -1,3 +1,3 @@
 ### Module: release
 
-Versions follow semver, tagged `vX.Y.Z`. To release: propose the bump (major, minor, patch) from the commits since the last tag, write the CHANGELOG.md entry, then wait for approval before tagging. Pushing the tag always needs the user's request.
+Versions follow semver, tagged `vX.Y.Z`, with a CHANGELOG.md entry per release. Release with `/sdlc:release`: it proposes the bump and the entry, and asks once. Pushing the tag always needs the user's request.

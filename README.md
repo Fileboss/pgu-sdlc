@@ -25,6 +25,7 @@ Then run `/sdlc:init` in Claude Code.
 | `/sdlc:init` | Choose stack profiles, modules and autonomy; generate `.sdlc.yml`, `AGENTS.md`, `CLAUDE.md`, `Makefile`, `BACKLOG.md`; optionally protect `main` |
 | `/sdlc:status` | Show configuration, phases and the current item |
 | `/sdlc:sync` | Regenerate `AGENTS.md` after editing `.sdlc.yml` |
+| `/sdlc:release [bump]` | Propose the semver bump and CHANGELOG entry, bump version files, then commit and tag on one approval (no push) |
 | `/sdlc:next [item]` | Gate approval: start an item or move it to its next phase, then run that phase |
 
 Vendored skills (Matt Pocock, MIT) are namespaced `sdlc:*`; see [plugins/sdlc/skills/VENDORED.md](plugins/sdlc/skills/VENDORED.md). `/sdlc:handoff` and `/sdlc:retro` are user-invoked.

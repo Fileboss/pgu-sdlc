@@ -1,3 +1,3 @@
 ### Module: ci
 
-GitHub Actions runs `make lint test` on every push and pull request (`.github/workflows/ci.yml`). Keep CI calling the Makefile, never tools directly.
+`.github/workflows/ci.yml` runs `make lint test` on pushes to `main` and on pull requests. Keep CI calling the Makefile, never tools directly; when a stack needs a new setup step, add it to the workflow.

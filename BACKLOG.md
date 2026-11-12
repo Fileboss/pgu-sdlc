@@ -4,12 +4,12 @@
 
 ## To do
 
+- Try the whole cycle on a real new project and trim whatever slows it down.
 - Decide what to do with the 10 skill copies in ~/.claude/skills (the plugin is per project, so deleting them removes them from other projects).
-- Step 4: `/sdlc:release` (semver, CHANGELOG), ci and docker module scaffolding, remaining profiles.
-- Makefile `dev` with several profiles runs them one after another; consider `make -j`.
 
 ## Done
 
+- v0.4.0 — Step 4: `/sdlc:release` (one approval: bump, CHANGELOG, version files, commit, tag), ci module (GitHub Actions per profile calling `make lint test`), docker module (ghcr image on tag), monorepo `make dev` in parallel.
 - v0.3.1 — Band shows the plan's 5-hour and weekly usage with reset times.
 - v0.3.0 — Step 3: the mod — band above the prompt (item, phase, gates/auto), expandable panel (module toggles, autonomy, approve next), commit gate when review is on; `sdlc.py set` and `status --json`.
 
