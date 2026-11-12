@@ -22,17 +22,18 @@ Then run `/sdlc:init` in Claude Code.
 
 | Command | Effect |
 |---|---|
-| `/sdlc:init` | Choose stack profiles, modules and autonomy; generate `.sdlc.yml`, `AGENTS.md`, `CLAUDE.md`, `Makefile`, `BACKLOG.md`; optionally protect `main` |
+| `/sdlc:init` | Choose stack profiles, modules and gates; generate `.sdlc.yml`, `AGENTS.md`, `CLAUDE.md`, `Makefile`, `BACKLOG.md`; optionally protect `main` |
 | `/sdlc:status` | Show configuration, phases and the current item |
 | `/sdlc:sync` | Regenerate `AGENTS.md` after editing `.sdlc.yml` |
 | `/sdlc:release [bump]` | Propose the semver bump and CHANGELOG entry, bump version files, then commit and tag on one approval (no push) |
+| `/sdlc:quick <slug>` | Start a small item that skips spec and plan |
 | `/sdlc:next [item]` | Gate approval: start an item or move it to its next phase, then run that phase |
 
 Vendored skills (Matt Pocock, MIT) are namespaced `sdlc:*`; see [plugins/sdlc/skills/VENDORED.md](plugins/sdlc/skills/VENDORED.md). `/sdlc:handoff` and `/sdlc:retro` are user-invoked.
 
 ## Band and panel (mod)
 
-In an sdlc project a one-line band sits above the prompt: `▸ sdlc · <item> · <phase> · gates|auto · 5h 23% ↻14:00 · week 41% ↻Mon`: the plan's 5-hour and weekly usage, in yellow past 80% and red past 95% (shown on a subscription only). Press `▸` to expand it: module toggles, a gates/auto switch and "Approve <phase> → next". Each press goes through `scripts/sdlc.py set|next`, so `.sdlc.yml` stays the source of truth and `AGENTS.md` is re-rendered.
+In an sdlc project a one-line band sits above the prompt: `▸ sdlc · <item> · <phase> · gates:commit · 5h 23% ↻14:00 · week 41% ↻Mon`: the plan's 5-hour and weekly usage, in yellow past 80% and red past 95% (shown on a subscription only). Press `▸` to expand it: module toggles, a gates switch (commit → all → none) and "Approve <phase> → next". Each press goes through `scripts/sdlc.py set|next`, so `.sdlc.yml` stays the source of truth and `AGENTS.md` is re-rendered.
 
 With the review module on, the mod denies `git commit` while an item is in progress and not yet in its review or commit phase.
 

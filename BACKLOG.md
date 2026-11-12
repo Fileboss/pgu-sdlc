@@ -9,6 +9,7 @@
 
 ## Done
 
+- v0.5.0 — Lighter process: `gates: commit|all|none` (default one stop before commit, replaces autonomy), `/sdlc:quick` items that skip spec and plan, spec and plan asked to stay proportionate.
 - v0.4.0 — Step 4: `/sdlc:release` (one approval: bump, CHANGELOG, version files, commit, tag), ci module (GitHub Actions per profile calling `make lint test`), docker module (ghcr image on tag), monorepo `make dev` in parallel.
 - v0.3.1 — Band shows the plan's 5-hour and weekly usage with reset times.
 - v0.3.0 — Step 3: the mod — band above the prompt (item, phase, gates/auto), expandable panel (module toggles, autonomy, approve next), commit gate when review is on; `sdlc.py set` and `status --json`.

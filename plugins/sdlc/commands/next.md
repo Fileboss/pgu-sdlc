@@ -6,7 +6,7 @@ allowed-tools: Bash, Read, Edit, Write, Skill
 
 The user approves the current phase. Run from the project root:
 
-`python3 "${CLAUDE_PLUGIN_ROOT}/scripts/sdlc.py" next` — or, when no item is in progress, `... next --item <slug>` with a short kebab-case slug for the item (from the arguments: $ARGUMENTS, or ask). It updates `.sdlc/state.json` and prints the new phase. If it prints `done:`, move the item to "Done" in BACKLOG.md and stop.
+`python3 "${CLAUDE_PLUGIN_ROOT}/scripts/sdlc.py" next` — or, when no item is in progress, `... next --item <slug>` with a short kebab-case slug for the item (from the arguments: $ARGUMENTS, or ask; `/sdlc:quick` for one that skips spec and plan). It updates `.sdlc/state.json` and prints the new phase. If it prints `done:`, move the item to "Done" in BACKLOG.md and stop.
 
 When starting a new item, add it under "In progress" in BACKLOG.md, linking `docs/specs/<slug>/` when the spec module is on.
 
@@ -20,4 +20,4 @@ Then run the new phase, following AGENTS.md:
 | review | the built-in `code-review` skill on the item's diff |
 | commit | propose the commit message(s) following the conventions, commit on approval, mark tickets `done` |
 
-At the end of the phase, stop and summarise for the gate, unless autonomy is on in `.sdlc.yml`: then invoke `sdlc:next` yourself, still asking before pushing to `main`, tagging or changing a data schema.
+At the end of the phase, follow the `gates` setting of `.sdlc.yml` (it is in AGENTS.md): `commit` (default) stops only before the commit phase, `all` stops after every phase, `none` never stops. Where you do not stop, invoke `sdlc:next` yourself. Always ask before pushing to `main`, tagging or changing a data schema.

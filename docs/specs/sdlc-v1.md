@@ -10,7 +10,7 @@ Settled in a grilling session on 2026-11-12. Goal: make personal AI-assisted pro
 
 ## Project configuration
 
-- `.sdlc.yml` is the single source of truth: modules (à la carte, no presets, chosen by the user), stack profiles, autonomy, stop check.
+- `.sdlc.yml` is the single source of truth: modules (à la carte, no presets, chosen by the user), stack profiles, gates, stop check.
 - `AGENTS.md` holds a generated block rendered from `.sdlc.yml`; the rest of the file is free. `CLAUDE.md` only imports it (`@AGENTS.md`).
 - `.sdlc/state.json` (committed) holds the current BACKLOG item and its phase, updated at phase transitions only.
 
@@ -26,7 +26,8 @@ Settled in a grilling session on 2026-11-12. Goal: make personal AI-assisted pro
 ## Cycle
 
 - Per BACKLOG item: spec -> plan -> implement -> review -> commit, keeping only active modules. Releases are project-wide.
-- `/sdlc:next` is the gate: it advances `.sdlc/state.json` and runs the next phase. Gates between every big phase by default. Autonomy can be switched on in `.sdlc.yml` or for one run in the session; push to `main`, release tags and data schema changes stay gated.
+- `/sdlc:next` advances `.sdlc/state.json` and runs the next phase. `gates` in `.sdlc.yml` says where the AI stops for approval: `commit` (default: once per item, before committing), `all` (every phase) or `none`. Push to `main`, release tags and data schema changes always need approval. Lightened before the first real test (2026-11-12): solo dev, one gate is enough.
+- `/sdlc:quick <slug>` starts an item that skips spec and plan: straight to implement → review → commit.
 - Programmable gates (mod) block only irreversible or outgoing actions (commit without review when `review` is on, push, tag); otherwise the phase is a reminder.
 
 ## Artefacts
@@ -49,7 +50,7 @@ Matt Pocock's skills only, vendored at a pinned commit and updated with `make sy
 
 ## UI (mod)
 
-Collapsed: the current phase. Expanded: module toggles, gates/auto switch, "next phase" button. The panel writes `.sdlc.yml`.
+Collapsed: the current phase. Expanded: module toggles, gates switch, "next phase" button. The panel writes `.sdlc.yml`.
 
 ## Delivery order
 

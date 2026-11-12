@@ -4,7 +4,7 @@ Stack profiles: {profiles}. Active modules: {modules}.
 
 Each BACKLOG.md item goes through these phases: {phases}. Releases are project-wide, not per item.
 
-- `.sdlc/state.json` holds the current item and phase. Change it only through `/sdlc:next`, which is the gate approval; commit it with the work.
+- `.sdlc/state.json` holds the current item and phase. Change it only through `sdlc:next` (a phase transition; at a gate, the user runs it); commit it with the work. `/sdlc:quick <slug>` starts an item that skips spec and plan.
 - On a new session, read `.sdlc/state.json` and BACKLOG.md first, then resume where they say.
 
 {gates}

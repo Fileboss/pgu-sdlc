@@ -73,7 +73,8 @@ export const register: Register = on => {
     if (s === null || e.props.hasSurvey) return next(e)
     const { Box, Button, Text } = $.ui.resolve(e)
     const expanded = await read($, isExpanded)
-    const where = s.item ? `${s.item} · ${s.phase}` : 'no item'
+    const where = s.item ? `${s.item} · ${s.phase}${s.quick ? ' (quick)' : ''}` : 'no item'
+    const nextGates = ({ commit: 'all', all: 'none', none: 'commit' } as const)[s.gates]
     const usage = (await read($, limits)).map(limit => (
       <Text color={limit.percentUsed >= 95 ? 'error' : limit.percentUsed >= 80 ? 'warning' : undefined}
         dimColor={limit.percentUsed < 80}>
@@ -86,7 +87,7 @@ export const register: Register = on => {
     const line = (
       <Box>
         {toggle}
-        <Text dimColor> sdlc · {where} · {s.autonomy ? 'auto' : 'gates'}</Text>
+        <Text dimColor> sdlc · {where} · gates:{s.gates}</Text>
         {usage}
       </Box>
     )
@@ -104,8 +105,8 @@ export const register: Register = on => {
           ))}
         </Box>
         <Box>
-          <Button key="autonomy" label={s.autonomy ? 'Switch to gates' : 'Switch to auto'}
-            onPress={() => change($, ['set', 'autonomy', String(!s.autonomy)])} />
+          <Button key="gates" label={`Gates: ${s.gates} → ${nextGates}`}
+            onPress={() => change($, ['set', 'gates', nextGates])} />
           {s.item && (
             <Button key="next" variant="primary" label={`Approve ${s.phase} → next`}
               onPress={() => change($, ['next'])} />

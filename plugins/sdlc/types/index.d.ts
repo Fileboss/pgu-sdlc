@@ -2,7 +2,8 @@
 export type Status = {
   modules: string[]
   allModules: string[]
-  autonomy: boolean
+  gates: 'commit' | 'all' | 'none'
+  quick: boolean
   phases: string[]
   item: string | null
   phase: string | null

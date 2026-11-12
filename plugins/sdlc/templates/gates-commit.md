@@ -1,0 +1,1 @@
+Gates: one stop per item, before the commit phase. Move through the earlier phases on your own (calling `sdlc:next` yourself), keeping each one short, and summarise what they produced when you stop. Never push to `main`, tag a release or change a data schema without approval.

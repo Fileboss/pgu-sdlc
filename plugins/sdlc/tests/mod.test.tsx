@@ -18,7 +18,8 @@ function project(on: any, status: object | null, rateLimits: object[] = []) {
 const implementing = {
   modules: ['spec', 'review'],
   allModules: ['spec', 'review', 'tdd'],
-  autonomy: false,
+  gates: 'commit',
+  quick: false,
   phases: ['spec', 'implement', 'review', 'commit'],
   item: 'session-cookie',
   phase: 'implement',
@@ -29,7 +30,7 @@ test('the band shows the item and phase, on every surface', async ($, on) => {
   await $.session.start({ cwd: '/p', surface: 'desktop', isInteractive: true })
   for (const surface of ['terminal', 'desktop'] as const) {
     const ui = await $.ui.mount({ ...BAND, surface })
-    expect((await ui.find({ type: 'Text', text: /sdlc/ }))?.text).toBe(' sdlc · session-cookie · implement · gates')
+    expect((await ui.find({ type: 'Text', text: /sdlc/ }))?.text).toBe(' sdlc · session-cookie · implement · gates:commit')
     await ui.unmount()
   }
 })
