@@ -5,3 +5,4 @@ lint: pnpm run --if-present lint && pnpm run --if-present check
 build: pnpm build
 dev_deps: eslint @eslint/js typescript-eslint globals eslint-config-prettier eslint-plugin-svelte prettier prettier-plugin-svelte typescript@^6
 dependabot: npm
+runtime: node

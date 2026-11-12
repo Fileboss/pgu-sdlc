@@ -15,6 +15,7 @@ Usage:
   sdlc.py next [--item <slug> [--quick]]
   sdlc.py set modules|gates|stop_check <value>
   sdlc.py bump X.Y.Z
+  sdlc.py lts node|java|python|go
 """
 import argparse
 import json
@@ -294,6 +295,50 @@ def render_workflows(cfg):
 PROFILE_MARK = "sdlc eslint"
 
 
+# Where to read the latest LTS (latest stable where a runtime has none), and how
+# to cut it to what a version file pins: the major (or minor) so patches flow in.
+LTS_SOURCES = {
+    "node": ("https://nodejs.org/dist/index.json",
+             lambda d: next(r["version"] for r in d if r["lts"]).lstrip("v").split(".")[0]),
+    "java": ("https://api.adoptium.net/v3/info/available_releases",
+             lambda d: str(d["most_recent_lts"])),
+    "python": ("https://endoflife.date/api/python.json",
+               lambda d: d[0]["cycle"]),
+    "go": ("https://go.dev/dl/?mode=json",
+           lambda d: ".".join(d[0]["version"][2:].split(".")[:2])),
+}
+VERSION_FILE = {"node": ".nvmrc", "java": ".java-version", "python": ".python-version"}
+
+
+def latest_lts(runtime):
+    from urllib.request import Request, urlopen
+    url, pick = LTS_SOURCES[runtime]
+    # Some APIs (Adoptium) refuse Python's default user agent.
+    with urlopen(Request(url, headers={"User-Agent": "sdlc"}), timeout=10) as response:
+        return pick(json.load(response))
+
+
+def render_version_files(cfg):
+    """Pin each profile's runtime to the latest LTS, once, in the file CI and local tools read."""
+    made = []
+    for spec in cfg["profiles"]:
+        name, _, subdir = spec.partition(":")
+        runtime = load_profile(name).get("runtime")
+        if runtime not in VERSION_FILE:
+            continue
+        path = os.path.join(subdir, VERSION_FILE[runtime]) if subdir else VERSION_FILE[runtime]
+        if os.path.exists(path):
+            continue
+        try:
+            version = latest_lts(runtime)
+        except Exception as error:  # offline: the project still renders
+            print("could not look up the latest {} LTS ({}); pin it in {}".format(runtime, error, path))
+            continue
+        write(path, version + "\n")
+        made.append("{} ({} {})".format(path, runtime, version))
+    return made
+
+
 def render_profile_files(cfg):
     """Copy each profile's shared files (lint configs) into its directory, once.
 
@@ -322,6 +367,7 @@ def render(cfg):
     render_agent_docs(cfg)
     workflows = render_workflows(cfg)
     copied, differs = render_profile_files(cfg)
+    copied += render_version_files(cfg)
     made = render_makefile(cfg)
     if not os.path.exists("BACKLOG.md"):
         write("BACKLOG.md", read(os.path.join(PLUGIN_ROOT, "templates", "BACKLOG.md")))
@@ -426,6 +472,12 @@ def cmd_bump(args):
                 print("bumped " + path)
 
 
+def cmd_lts(args):
+    if args.runtime not in LTS_SOURCES:
+        die("lts knows " + ", ".join(sorted(LTS_SOURCES)))
+    print(latest_lts(args.runtime))
+
+
 def cmd_status(args):
     cfg = load_config()
     state = json.loads(read(STATE)) if os.path.exists(STATE) else {}
@@ -464,6 +516,8 @@ def main():
     p = sub.add_parser("next")
     p.add_argument("--item")
     p.add_argument("--quick", action="store_true")
+    p = sub.add_parser("lts")
+    p.add_argument("runtime")
     p = sub.add_parser("bump")
     p.add_argument("version")
     p = sub.add_parser("set")
@@ -476,6 +530,8 @@ def main():
         cmd_set(args)
     elif args.cmd == "bump":
         cmd_bump(args)
+    elif args.cmd == "lts":
+        cmd_lts(args)
     elif args.cmd == "next":
         cmd_next(args)
     elif args.cmd == "render":

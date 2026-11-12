@@ -55,6 +55,8 @@ Human docs (`docs/**`, BACKLOG, CHANGELOG, GLOSSARY, README; not AGENTS/CLAUDE) 
 
 `sveltekit-pnpm`, `node-ts-pnpm`, `python-uv`, `java-spring-maven`, `rust-cargo`, `go`. Several per project for monorepos (`name:subdir`).
 
+Every runtime starts on the most recent LTS (most recent stable where none exists), looked up online at init (`sdlc.py lts`: nodejs.org, Adoptium, endoflife.date, go.dev) and pinned to its major or minor in the file CI reads: `.nvmrc`, `.python-version`, `.java-version`, `go.mod`. Rust follows stable. The same rule applies to frameworks, tools and Docker base images, written in AGENTS.md.
+
 TypeScript profiles share one ESLint and Prettier config, copied at init (marked `sdlc eslint v1`): `js` + `typescript-eslint` recommended + prettier, `no-undef` off; the svelte profile adds `eslint-plugin-svelte` and `svelte/button-has-type`. Prettier: tabs, single quotes, no trailing comma, width 100. No type-checked rules (slow on small projects). Angular stays out until a project needs it.
 
 ## External skills

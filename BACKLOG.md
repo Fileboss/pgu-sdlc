@@ -15,6 +15,7 @@ tags: [backlog, sdlc]
 
 ## Done
 
+- v0.8.0 — Latest LTS everywhere: init looks up and pins Node, Java, Python (and Go via `go mod edit`) in version files that CI reads; AGENTS.md rule for runtimes, frameworks, tools and base images.
 - v0.7.0 — Security in core: Trivy + gitleaks workflow and Dependabot for every project, GitHub setup also turns on Dependabot alerts; all workflow actions pinned by SHA to current majors (Node 24). pgu-sdlc runs the same workflow.
 - v0.6.0 — Human docs written for Obsidian (frontmatter, relative markdown links, callouts, mermaid) and linked into the central vault by symlinks; shared ESLint/Prettier config for every TypeScript profile (sdlc eslint v1), new `node-ts-pnpm` profile.
 - v0.5.0 — Lighter process: `gates: commit|all|none` (default one stop before commit, replaces autonomy), `/sdlc:quick` items that skip spec and plan, spec and plan asked to stay proportionate.

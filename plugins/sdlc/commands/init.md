@@ -14,6 +14,8 @@ Set up the sdlc workflow in the current project. The user decides everything; pr
 6. Run from the project root:
    `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/sdlc.py" init --profiles <p1,p2> --modules <m1,m2> [--gates commit|all|none]`
    It writes `.sdlc.yml`, the generated block of `AGENTS.md`, `CLAUDE.md` (`@AGENTS.md`), the `Makefile` if absent, `BACKLOG.md`, `.sdlc/state.json`, `.gitignore` entries, `.github/workflows/security.yml` (Trivy and gitleaks) and `.github/dependabot.yml` for every project, and each profile's shared lint configs (`eslint.config.js`, `.prettierrc` for TypeScript profiles).
+   - It pins each profile's runtime to the most recent LTS, looked up online (`.nvmrc`, `.python-version`, `.java-version`); report the versions. For Go, run `go mod edit -go=<python3 "${CLAUDE_PLUGIN_ROOT}/scripts/sdlc.py" lts go>` once `go.mod` exists. If a lookup failed (offline), say so.
+   - When the project is scaffolded now (`sv create`, `uv init`, Spring Initializr, `cargo new`), use those LTS versions and the latest stable framework, never versions from memory.
    - For each `differs from sdlc:` line, show the diff and offer to replace the project's file with sdlc's (keep the project's own rules in the last block). Replace only on approval.
    - TypeScript profiles list their lint packages under `dev_deps` in `${CLAUDE_PLUGIN_ROOT}/profiles/<profile>.yml`: if `package.json` lacks some, offer `pnpm add -D <missing>` (in the profile's subdir).
 7. Offer to show the project's docs in the Obsidian vault (symlinks, nothing copied): `sh "${CLAUDE_PLUGIN_ROOT}/scripts/link-obsidian.sh"` (default vault `~/Documents/obsidian/perso`; pass another path as argument). Run it only on approval.
