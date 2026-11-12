@@ -1,0 +1,5 @@
+# Python managed by uv, with ruff and pytest as dev dependencies.
+dev: @echo "python-uv has no standard dev command: set it in the Makefile" && exit 1
+test: uv run pytest -q
+lint: uv run ruff check . && uv run ruff format --check .
+build: uv build

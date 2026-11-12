@@ -1,0 +1,5 @@
+# Spring Boot with the Maven wrapper.
+dev: ./mvnw spring-boot:run
+test: ./mvnw -q test
+lint: ./mvnw -q -DskipTests verify
+build: ./mvnw -q -DskipTests package

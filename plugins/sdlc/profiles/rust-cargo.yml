@@ -1,0 +1,5 @@
+# Rust with cargo; clippy warnings fail the lint.
+dev: cargo run
+test: cargo test
+lint: cargo fmt --check && cargo clippy --all-targets -- -D warnings
+build: cargo build --release

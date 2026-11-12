@@ -1,0 +1,9 @@
+{
+  "name": "sdlc",
+  "description": "Modular AI SDLC for personal projects: per-project modules, stack profiles, gates and guardrails.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Fileboss"
+  },
+  "keywords": ["sdlc", "workflow", "guardrails"]
+}

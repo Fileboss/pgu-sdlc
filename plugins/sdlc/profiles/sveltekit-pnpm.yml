@@ -1,0 +1,5 @@
+# SvelteKit with pnpm. Scripts missing from package.json are skipped.
+dev: pnpm dev
+test: pnpm run --if-present test
+lint: pnpm run --if-present lint && pnpm run --if-present check
+build: pnpm build

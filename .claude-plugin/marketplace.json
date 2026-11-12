@@ -1,0 +1,14 @@
+{
+  "name": "pgu-sdlc",
+  "owner": {
+    "name": "Fileboss"
+  },
+  "description": "Personal AI SDLC: modular workflow, stack profiles and guardrails for Claude Code.",
+  "plugins": [
+    {
+      "name": "sdlc",
+      "source": "./plugins/sdlc",
+      "description": "Modular AI SDLC for personal projects: per-project modules, stack profiles, gates and guardrails."
+    }
+  ]
+}
