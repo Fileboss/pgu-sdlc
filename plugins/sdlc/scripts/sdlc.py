@@ -263,11 +263,37 @@ def render_workflows(cfg):
     return made
 
 
+PROFILE_MARK = "sdlc eslint"
+
+
+def render_profile_files(cfg):
+    """Copy each profile's shared files (lint configs) into its directory, once.
+
+    A file the project already has stays; a lint config that is not sdlc's is
+    reported so /sdlc:init can offer to replace it."""
+    made, differs = [], []
+    for spec in cfg["profiles"]:
+        name, _, subdir = spec.partition(":")
+        source = os.path.join(PLUGIN_ROOT, "profiles", "files", name)
+        if not os.path.isdir(source):
+            continue
+        for filename in sorted(os.listdir(source)):
+            path = os.path.join(subdir, filename) if subdir else filename
+            template = read(os.path.join(source, filename))
+            if not os.path.exists(path):
+                write(path, template)
+                made.append(path)
+            elif read(path) != template and (PROFILE_MARK not in read(path) or filename == ".prettierrc"):
+                differs.append("{} (sdlc's: {})".format(path, os.path.join(source, filename)))
+    return made, differs
+
+
 def render(cfg):
     render_agents(cfg)
     render_claude_md()
     render_agent_docs(cfg)
     workflows = render_workflows(cfg)
+    copied, differs = render_profile_files(cfg)
     made = render_makefile(cfg)
     if not os.path.exists("BACKLOG.md"):
         write("BACKLOG.md", read(os.path.join(PLUGIN_ROOT, "templates", "BACKLOG.md")))
@@ -275,7 +301,9 @@ def render(cfg):
         write(STATE, json.dumps({"item": None, "phase": None, "quick": False}, indent=2) + "\n")
     ensure_lines(".gitignore", [".env", ".env.*", "!.env.example"])
     print("rendered AGENTS.md, CLAUDE.md" + (", Makefile" if made else " (Makefile kept)")
-          + "".join(", " + w for w in workflows))
+          + "".join(", " + w for w in workflows + copied))
+    for line in differs:
+        print("differs from sdlc: " + line)
 
 
 # --- commands --------------------------------------------------------------

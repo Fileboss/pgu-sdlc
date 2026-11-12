@@ -1,0 +1,7 @@
+# TypeScript without a framework (Node), with pnpm. Scripts missing from package.json are skipped.
+# typescript stays on 6: typescript-eslint does not support TypeScript 7 yet.
+dev: pnpm run dev
+test: pnpm run --if-present test
+lint: pnpm exec prettier --check . && pnpm exec eslint . && pnpm exec tsc --noEmit
+build: pnpm run --if-present build
+dev_deps: eslint @eslint/js typescript-eslint globals eslint-config-prettier prettier typescript@^6

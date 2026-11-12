@@ -1,3 +1,10 @@
+---
+title: sdlc v1 design
+tags: [sdlc, spec]
+date: 2026-11-12
+status: accepted
+---
+
 # sdlc v1 — design
 
 Settled in a grilling session on 2026-11-12. Goal: make personal AI-assisted projects uniform and reliable, the main pain being projects that each work differently. The workflow is modular: a small project takes only what it needs.
@@ -34,6 +41,8 @@ Settled in a grilling session on 2026-11-12. Goal: make personal AI-assisted pro
 
 Files only. BACKLOG.md indexes the items; each item has `docs/specs/<slug>/spec.md` and tickets in `docs/specs/<slug>/issues/NN-*.md` (Pocock's local-markdown tracker, moved from `.scratch/` so it is committed). ADRs in `docs/adr/` and `GLOSSARY.md`, written by `domain-modeling`. `docs/agents/issue-tracker.md` and `domain.md` tell the skills where things live; `/sdlc:init` writes them, replacing `setup-matt-pocock-skills`. Everything is written in English; the user talks in French.
 
+Human docs (`docs/**`, BACKLOG, CHANGELOG, GLOSSARY, README; not AGENTS/CLAUDE) are written for Obsidian: YAML frontmatter (`title`, `tags`, `date`, `status`; none on README, which GitHub would show as a table), relative markdown links rather than wikilinks so they also work on GitHub and for agents, callouts and mermaid. `/sdlc:init` can symlink them into `~/Documents/obsidian/perso/<project>/`: one copy, always current.
+
 ## Git conventions
 
 - Trunk-based on `main`, light protection (no force-push, no deletion). Branches and PRs (merge commit, no squash) only with the `pr` module.
@@ -42,7 +51,9 @@ Files only. BACKLOG.md indexes the items; each item has `docs/specs/<slug>/spec.
 
 ## Stack profiles
 
-`sveltekit-pnpm`, `python-uv`, `java-spring-maven`, `rust-cargo`, `go`. Several per project for monorepos (`name:subdir`).
+`sveltekit-pnpm`, `node-ts-pnpm`, `python-uv`, `java-spring-maven`, `rust-cargo`, `go`. Several per project for monorepos (`name:subdir`).
+
+TypeScript profiles share one ESLint and Prettier config, copied at init (marked `sdlc eslint v1`): `js` + `typescript-eslint` recommended + prettier, `no-undef` off; the svelte profile adds `eslint-plugin-svelte` and `svelte/button-has-type`. Prettier: tabs, single quotes, no trailing comma, width 100. No type-checked rules (slow on small projects). Angular stays out until a project needs it.
 
 ## External skills
 

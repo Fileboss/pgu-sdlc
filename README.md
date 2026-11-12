@@ -2,7 +2,7 @@
 
 A modular AI SDLC for personal projects, shipped as a Claude Code plugin (`sdlc`) from this marketplace repo.
 
-Each project picks its modules à la carte in `.sdlc.yml`; the plugin renders `AGENTS.md`, a uniform `Makefile` and guardrails from it. See [docs/specs/sdlc-v1.md](docs/specs/sdlc-v1.md) for the design.
+Each project picks its modules à la carte in `.sdlc.yml`; the plugin renders `AGENTS.md`, a uniform `Makefile` and guardrails from it. TypeScript projects get the same ESLint and Prettier config, and human docs are written for Obsidian (and can be symlinked into the vault). See [docs/specs/sdlc-v1.md](docs/specs/sdlc-v1.md) for the design.
 
 ## Install
 
@@ -47,7 +47,7 @@ plugins/sdlc/
                     and register.tsx: the mod (band, panel, commit gate)
   tests/            the mod's tests (make test)
   types/            the mod's state contract
-  profiles/         stack profiles: Makefile commands per stack
+  profiles/         stack profiles: Makefile commands per stack; files/ holds shared lint configs
   scripts/sdlc.py   reads .sdlc.yml, renders derived files, moves phases (stdlib only)
   skills/           vendored skills, never edited by hand
   templates/        AGENTS.md block, one snippet per module
