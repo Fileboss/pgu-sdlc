@@ -2,7 +2,7 @@
 
 A modular AI SDLC for personal projects, shipped as a Claude Code plugin (`sdlc`) from this marketplace repo.
 
-Each project picks its modules à la carte in `.sdlc.yml`; the plugin renders `AGENTS.md`, a uniform `Makefile` and guardrails from it. TypeScript projects get the same ESLint and Prettier config, and human docs are written for Obsidian (and can be symlinked into the vault). See [docs/specs/sdlc-v1.md](docs/specs/sdlc-v1.md) for the design.
+Each project picks its modules à la carte in `.sdlc.yml`; the plugin renders `AGENTS.md`, a uniform `Makefile` and guardrails from it. Every project gets a security workflow (Trivy on dependencies, gitleaks on secrets; push, PR and weekly) and weekly Dependabot updates. TypeScript projects get the same ESLint and Prettier config, and human docs are written for Obsidian (and can be symlinked into the vault). See [docs/specs/sdlc-v1.md](docs/specs/sdlc-v1.md) for the design.
 
 ## Install
 
@@ -22,7 +22,7 @@ Then run `/sdlc:init` in Claude Code.
 
 | Command | Effect |
 |---|---|
-| `/sdlc:init` | Choose stack profiles, modules and gates; generate `.sdlc.yml`, `AGENTS.md`, `CLAUDE.md`, `Makefile`, `BACKLOG.md`; optionally protect `main` |
+| `/sdlc:init` | Choose stack profiles, modules and gates; generate `.sdlc.yml`, `AGENTS.md`, `CLAUDE.md`, `Makefile`, `BACKLOG.md`; optionally protect `main` and turn on Dependabot alerts |
 | `/sdlc:status` | Show configuration, phases and the current item |
 | `/sdlc:sync` | Regenerate `AGENTS.md` after editing `.sdlc.yml` |
 | `/sdlc:release [bump]` | Propose the semver bump and CHANGELOG entry, bump version files, then commit and tag on one approval (no push) |

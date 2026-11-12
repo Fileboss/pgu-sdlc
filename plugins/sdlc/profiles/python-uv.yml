@@ -3,3 +3,4 @@ dev: @echo "python-uv has no standard dev command: set it in the Makefile" && ex
 test: uv run pytest -q
 lint: uv run ruff check . && uv run ruff format --check .
 build: uv build
+dependabot: uv

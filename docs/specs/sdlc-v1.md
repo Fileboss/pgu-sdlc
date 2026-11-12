@@ -27,7 +27,9 @@ Settled in a grilling session on 2026-11-12. Goal: make personal AI-assisted pro
   - no `.env*` access (`.env.example` allowed);
   - push allowed except to `main` and except tags, which need the user's explicit request;
   - no destructive docker commands;
-  - stop check `make lint test` (can be disabled).
+  - stop check `make lint test` (can be disabled);
+  - `.github/workflows/security.yml`: Trivy filesystem scan of every lockfile (HIGH/CRITICAL with a fix fails the run) and gitleaks on the history, on push to `main`, on PRs and weekly; not a required check, which would block trunk-based pushes: a failure mails the owner;
+  - `.github/dependabot.yml`: weekly PRs for the profile's ecosystem, GitHub Actions and the Docker base image. Actions are pinned by commit SHA (Node 20 runners are gone since 2026-09-16, so stale majors break).
 - Optional: `spec`, `plan`, `decisions`, `tdd`, `review`, `commit`, `release`, `ci`, `docker`, `pr`, `handoff`, `retro`.
 
 ## Cycle

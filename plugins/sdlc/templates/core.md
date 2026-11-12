@@ -20,6 +20,7 @@ Run `make lint test` before declaring work done.
 - Commit messages: `Scope: imperative description`, the scope a capitalised word (`Auth: add SameSite cookie`, `Backlog: mark M11 done`). Prefix a milestone id when there is one (`M11.1: ...`). One logical change per commit.
 - Git: trunk-based on `main` unless the `pr` module is active. Pushing to `main` needs the user's explicit request; other branches may be pushed.
 - Never read or write `.env` files; `.env.example` is the committed template.
+- Security: `.github/workflows/security.yml` (Trivy on dependencies, gitleaks on the history) must stay green. Fix a HIGH or CRITICAL finding by updating the dependency; merge Dependabot's weekly PRs rather than letting them pile up. GitHub Actions are pinned by commit, with the version in a comment.
 
 ## Docs for humans (read in Obsidian)
 

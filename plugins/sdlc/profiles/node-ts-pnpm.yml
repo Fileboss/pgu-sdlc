@@ -5,3 +5,4 @@ test: pnpm run --if-present test
 lint: pnpm exec prettier --check . && pnpm exec eslint . && pnpm exec tsc --noEmit
 build: pnpm run --if-present build
 dev_deps: eslint @eslint/js typescript-eslint globals eslint-config-prettier prettier typescript@^6
+dependabot: npm
