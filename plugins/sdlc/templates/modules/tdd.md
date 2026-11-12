@@ -1,3 +1,3 @@
 ### Module: tdd
 
-Implement test-first: write a failing test, make it pass with the simplest code, then refactor. Test behaviour through public interfaces.
+Implement test-first with the `sdlc:tdd` skill: one failing test, the simplest code to pass it, repeat. Refactoring belongs to the review phase.

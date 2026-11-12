@@ -25,6 +25,9 @@ Then run `/sdlc:init` in Claude Code.
 | `/sdlc:init` | Choose stack profiles, modules and autonomy; generate `.sdlc.yml`, `AGENTS.md`, `CLAUDE.md`, `Makefile`, `BACKLOG.md`; optionally protect `main` |
 | `/sdlc:status` | Show configuration, phases and the current item |
 | `/sdlc:sync` | Regenerate `AGENTS.md` after editing `.sdlc.yml` |
+| `/sdlc:next [item]` | Gate approval: start an item or move it to its next phase, then run that phase |
+
+Vendored skills (Matt Pocock, MIT) are namespaced `sdlc:*`; see [plugins/sdlc/skills/VENDORED.md](plugins/sdlc/skills/VENDORED.md). `/sdlc:handoff` and `/sdlc:retro` are user-invoked.
 
 ## Layout
 
@@ -34,7 +37,8 @@ plugins/sdlc/
   commands/         slash commands
   hooks/            guardrails (.env, destructive docker, push to main/tags) and the stop check
   profiles/         stack profiles: Makefile commands per stack
-  scripts/sdlc.py   reads .sdlc.yml, renders derived files (stdlib only)
+  scripts/sdlc.py   reads .sdlc.yml, renders derived files, moves phases (stdlib only)
+  skills/           vendored skills, never edited by hand
   templates/        AGENTS.md block, one snippet per module
 ```
 
@@ -42,5 +46,6 @@ plugins/sdlc/
 
 ```sh
 claude --plugin-dir plugins/sdlc   # load the working copy in a session
-claude plugin validate plugins/sdlc
+make validate
+make sync-pocock [REF=<sha>]       # re-vendor the skills, then review the diff
 ```

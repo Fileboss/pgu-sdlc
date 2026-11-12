@@ -12,8 +12,15 @@ if [ "$(printf '%s' "$input" | jq -r '.stop_hook_active // false')" = "true" ]; 
 fi
 cd "$root" || exit 0
 [ "$(python3 "${CLAUDE_PLUGIN_ROOT}/scripts/sdlc.py" get stop_check)" = "true" ] || exit 0
-# Nothing changed since the last commit: nothing to check.
-[ -n "$(git status --porcelain 2>/dev/null)" ] || exit 0
+# Spec and plan phases produce documents only.
+case "$(jq -r '.phase // empty' .sdlc/state.json 2>/dev/null)" in
+  spec | plan) exit 0 ;;
+esac
+# Only code changes are checked: docs and sdlc's own files (as written by
+# /sdlc:init on a project that may not build yet) are not.
+changed=$(git status --porcelain --untracked-files=all 2>/dev/null | cut -c4- |
+  grep -Ev '\.md$|^docs/|^\.sdlc|^\.gitignore$|^Makefile$')
+[ -n "$changed" ] || exit 0
 if ! out=$(make lint test 2>&1); then
   printf 'make lint test failed. Fix it before stopping:\n%s\n' "$(printf '%s' "$out" | tail -25)" >&2
   exit 2

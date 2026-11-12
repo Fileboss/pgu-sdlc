@@ -12,6 +12,7 @@ Usage:
   sdlc.py render
   sdlc.py get <key>
   sdlc.py status
+  sdlc.py next [--item <slug>]
 """
 import argparse
 import json
@@ -214,9 +215,23 @@ def ensure_lines(path, wanted):
             f.write(prefix + "\n".join(missing) + "\n")
 
 
+def render_agent_docs(cfg):
+    # The vendored skills read their tracker and domain-doc layout from docs/agents/.
+    wanted = []
+    if {"spec", "plan"} & set(cfg["modules"]):
+        wanted.append("issue-tracker.md")
+    if "decisions" in cfg["modules"]:
+        wanted.append("domain.md")
+    for name in wanted:
+        path = os.path.join("docs", "agents", name)
+        if not os.path.exists(path):
+            write(path, read(os.path.join(PLUGIN_ROOT, "templates", "agents", name)))
+
+
 def render(cfg):
     render_agents(cfg)
     render_claude_md()
+    render_agent_docs(cfg)
     made = render_makefile(cfg)
     if not os.path.exists("BACKLOG.md"):
         write("BACKLOG.md", read(os.path.join(PLUGIN_ROOT, "templates", "BACKLOG.md")))
@@ -252,6 +267,28 @@ def cmd_get(args):
         print(value)
 
 
+def cmd_next(args):
+    """Advance the current item to its next phase: the gate approval."""
+    cfg = load_config()
+    state = json.loads(read(STATE)) if os.path.exists(STATE) else {}
+    order = phases(cfg)
+    if not state.get("phase"):
+        if not args.item:
+            die("no item in progress; pass --item <slug> to start one")
+        state = {"item": args.item, "phase": order[0]}
+    elif args.item and args.item != state["item"]:
+        die("item {} is still in progress (phase {})".format(state["item"], state["phase"]))
+    elif state["phase"] == order[-1]:
+        print("done: " + state["item"])
+        state = {"item": None, "phase": None}
+    else:
+        current = state["phase"]
+        # A module switched off mid-item: restart from the first remaining phase.
+        state["phase"] = order[order.index(current) + 1] if current in order else order[0]
+    write(STATE, json.dumps(state, indent=2) + "\n")
+    print("current: {} / {}".format(state["item"] or "no item", state["phase"] or "idle"))
+
+
 def cmd_status(_args):
     cfg = load_config()
     state = json.loads(read(STATE)) if os.path.exists(STATE) else {}
@@ -274,9 +311,13 @@ def main():
     p = sub.add_parser("get")
     p.add_argument("key")
     sub.add_parser("status")
+    p = sub.add_parser("next")
+    p.add_argument("--item")
     args = parser.parse_args()
     if args.cmd == "init":
         cmd_init(args)
+    elif args.cmd == "next":
+        cmd_next(args)
     elif args.cmd == "render":
         render(load_config())
     elif args.cmd == "get":

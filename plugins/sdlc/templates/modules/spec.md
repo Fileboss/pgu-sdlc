@@ -1,3 +1,3 @@
 ### Module: spec
 
-Before any code for an item, write `docs/specs/<item-slug>.md`: problem, scope, out of scope, acceptance criteria. Grill the user on open questions instead of guessing.
+Before any code for an item, grill the user on it with the `sdlc:grilling` skill (`sdlc:grill-with-docs` when the decisions module is on), then write the spec with `sdlc:to-spec`. Specs and tickets live in local markdown: see `docs/agents/issue-tracker.md`.

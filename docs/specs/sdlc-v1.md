@@ -26,12 +26,12 @@ Settled in a grilling session on 2026-11-12. Goal: make personal AI-assisted pro
 ## Cycle
 
 - Per BACKLOG item: spec -> plan -> implement -> review -> commit, keeping only active modules. Releases are project-wide.
-- Gates between every big phase by default. Autonomy can be switched on in `.sdlc.yml` or for one run in the session; push to `main`, release tags and data schema changes stay gated.
+- `/sdlc:next` is the gate: it advances `.sdlc/state.json` and runs the next phase. Gates between every big phase by default. Autonomy can be switched on in `.sdlc.yml` or for one run in the session; push to `main`, release tags and data schema changes stay gated.
 - Programmable gates (mod) block only irreversible or outgoing actions (commit without review when `review` is on, push, tag); otherwise the phase is a reminder.
 
 ## Artefacts
 
-Files only: `docs/specs/`, BACKLOG.md, ADR and GLOSSARY in the `grill-with-docs` format. Everything is written in English; the user talks in French.
+Files only. BACKLOG.md indexes the items; each item has `docs/specs/<slug>/spec.md` and tickets in `docs/specs/<slug>/issues/NN-*.md` (Pocock's local-markdown tracker, moved from `.scratch/` so it is committed). ADRs in `docs/adr/` and `GLOSSARY.md`, written by `domain-modeling`. `docs/agents/issue-tracker.md` and `domain.md` tell the skills where things live; `/sdlc:init` writes them, replacing `setup-matt-pocock-skills`. Everything is written in English; the user talks in French.
 
 ## Git conventions
 
@@ -45,7 +45,7 @@ Files only: `docs/specs/`, BACKLOG.md, ADR and GLOSSARY in the `grill-with-docs`
 
 ## External skills
 
-Matt Pocock's skills only, vendored at a pinned commit and updated with `make sync-pocock` after reading the diff. Selection: grilling, grill-with-docs, to-spec, to-tickets, tdd, implement, pr, handoff, retro, diagnosing-bugs, prototype, codebase-design, setup-matt-pocock-skills, writing-for-agents. Review uses Claude Code's built-in `/code-review`.
+Matt Pocock's skills only, vendored at a pinned commit and updated with `make sync-pocock` after reading the diff. Selection: grilling, grill-with-docs, domain-modeling (called by grill-with-docs), to-spec, to-tickets, tdd, pr, handoff, retro, diagnosing-bugs, prototype, codebase-design, writing-for-agents. Not vendored: `implement` (it chains implement, review and commit without gates; `/sdlc:next` drives those phases instead) and `setup-matt-pocock-skills` (replaced by `/sdlc:init`). Review uses Claude Code's built-in `code-review`. The sync rewrites skill-to-skill calls to the `sdlc:` namespace and makes to-spec, to-tickets and grill-with-docs model-invocable so phases can chain.
 
 ## UI (mod)
 
