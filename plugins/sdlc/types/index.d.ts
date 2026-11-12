@@ -10,6 +10,6 @@ export type Status = {
 
 declare module 'claude-code' {
   interface PluginState {
-    sdlc: { status: Shaped<Status | null>; isExpanded: boolean }
+    sdlc: { status: Shaped<Status | null>; isExpanded: boolean; limits: Shaped<SessionRateLimit[]> }
   }
 }

@@ -10,6 +10,7 @@
 
 ## Done
 
+- v0.3.1 — Band shows the plan's 5-hour and weekly usage with reset times.
 - v0.3.0 — Step 3: the mod — band above the prompt (item, phase, gates/auto), expandable panel (module toggles, autonomy, approve next), commit gate when review is on; `sdlc.py set` and `status --json`.
 
 - v0.2.0 — Step 2: Pocock skills vendored at a pinned commit (`make sync-pocock`), spec/plan/decisions/tdd/review wired to them, local-markdown tracker under `docs/specs/`, `/sdlc:next` phase gate, stop check limited to code changes outside spec/plan.

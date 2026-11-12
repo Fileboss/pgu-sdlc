@@ -1,5 +1,5 @@
 import { atom, read, update } from 'claude-code'
-import type { EngineInterface, Register } from 'claude-code'
+import type { EngineInterface, Register, SessionRateLimit } from 'claude-code'
 
 import type { Status } from '../types'
 
@@ -7,7 +7,19 @@ import type { Status } from '../types'
 // of truth: every read and write goes through scripts/sdlc.py.
 const status = atom({ plugin: 'sdlc', key: 'status' } as const, null, { shape: 'status-1' })
 const isExpanded = atom({ plugin: 'sdlc', key: 'isExpanded' } as const, false)
+// The plan's rate-limit windows (5-hour session, weekly), empty off a subscription.
+const limits = atom({ plugin: 'sdlc', key: 'limits' } as const, [], { shape: 'limits-1' })
 
+const WINDOW: Record<string, string> = { five_hour: '5h', seven_day: 'week' }
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+function resets(limit: SessionRateLimit) {
+  if (!limit.resetsAt) return ''
+  const at = new Date(limit.resetsAt)
+  return limit.kind === 'five_hour'
+    ? ` ↻${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`
+    : ` ↻${DAYS[at.getDay()]}`
+}
 
 async function sdlc($: EngineInterface, args: string[]) {
   const root = await $.session.root()
@@ -30,7 +42,14 @@ export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     const started = await next(e)
     await refresh($)
+    const { rateLimits } = await $.session.usage()
+    await update($, limits, () => rateLimits)
     return started
+  })
+
+  on('session.measure', async ($, e, next) => {
+    if (e.changed.includes('rateLimits')) await update($, limits, () => e.rateLimits)
+    return next(e)
   })
 
   // The model moves phases and edits .sdlc.yml too: re-read after each turn.
@@ -55,6 +74,12 @@ export const register: Register = on => {
     const { Box, Button, Text } = $.ui.resolve(e)
     const expanded = await read($, isExpanded)
     const where = s.item ? `${s.item} · ${s.phase}` : 'no item'
+    const usage = (await read($, limits)).map(limit => (
+      <Text color={limit.percentUsed >= 95 ? 'error' : limit.percentUsed >= 80 ? 'warning' : undefined}
+        dimColor={limit.percentUsed < 80}>
+        {' · '}{WINDOW[limit.kind] ?? limit.kind} {Math.round(limit.percentUsed)}%{resets(limit)}
+      </Text>
+    ))
     const toggle = (
       <Button key="toggle" plain label={expanded ? '▾' : '▸'} onPress={() => update($, isExpanded, v => !v)} />
     )
@@ -62,6 +87,7 @@ export const register: Register = on => {
       <Box>
         {toggle}
         <Text dimColor> sdlc · {where} · {s.autonomy ? 'auto' : 'gates'}</Text>
+        {usage}
       </Box>
     )
     if (!expanded) return line

@@ -2,9 +2,10 @@ import { expect, test } from 'claude-code/testing'
 
 const BAND = { plugin: 'sdlc', component: 'AbovePrompt', props: {} } as const
 
-function project(on: any, status: object | null) {
+function project(on: any, status: object | null, rateLimits: object[] = []) {
   // Hooks here stand for the engine: sdlc.py answers through process.run.
   on('session.root', () => ({ value: '/p' }))
+  on('session.usage', () => ({ value: { startedAt: 0, context: {}, rateLimits } }))
   on('process.run', () => ({
     value: status
       ? { exitCode: 0, stdout: JSON.stringify(status), stderr: '' }
@@ -54,4 +55,18 @@ test('outside an sdlc project the mod draws nothing and gates nothing', async ($
   const ui = await $.ui.mount({ ...BAND, surface: 'terminal' })
   expect(await ui.find({ type: 'Text', text: /sdlc/ })).toBe(undefined)
   await ui.unmount()
+})
+
+test('the band shows the 5-hour and weekly usage', async ($, on) => {
+  project(on, implementing, [
+    { kind: 'five_hour', percentUsed: 23.4 },
+    { kind: 'seven_day', percentUsed: 86 },
+  ])
+  await $.session.start({ cwd: '/p', surface: 'desktop', isInteractive: true })
+  for (const surface of ['terminal', 'desktop'] as const) {
+    const ui = await $.ui.mount({ ...BAND, surface })
+    expect((await ui.find({ type: 'Text', text: /5h/ }))?.text).toBe(' · 5h 23%')
+    expect((await ui.find({ type: 'Text', text: /week/ }))?.text).toBe(' · week 86%')
+    await ui.unmount()
+  }
 })
