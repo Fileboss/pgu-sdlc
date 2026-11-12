@@ -29,13 +29,22 @@ Then run `/sdlc:init` in Claude Code.
 
 Vendored skills (Matt Pocock, MIT) are namespaced `sdlc:*`; see [plugins/sdlc/skills/VENDORED.md](plugins/sdlc/skills/VENDORED.md). `/sdlc:handoff` and `/sdlc:retro` are user-invoked.
 
+## Band and panel (mod)
+
+In an sdlc project a one-line band sits above the prompt: `▸ sdlc · <item> · <phase> · gates|auto`. Press `▸` to expand it: module toggles, a gates/auto switch and "Approve <phase> → next". Each press goes through `scripts/sdlc.py set|next`, so `.sdlc.yml` stays the source of truth and `AGENTS.md` is re-rendered.
+
+With the review module on, the mod denies `git commit` while an item is in progress and not yet in its review or commit phase.
+
 ## Layout
 
 ```
 .claude-plugin/marketplace.json
 plugins/sdlc/
   commands/         slash commands
-  hooks/            guardrails (.env, destructive docker, push to main/tags) and the stop check
+  hooks/            guardrails (.env, destructive docker, push to main/tags), the stop check,
+                    and register.tsx: the mod (band, panel, commit gate)
+  tests/            the mod's tests (make test)
+  types/            the mod's state contract
   profiles/         stack profiles: Makefile commands per stack
   scripts/sdlc.py   reads .sdlc.yml, renders derived files, moves phases (stdlib only)
   skills/           vendored skills, never edited by hand
@@ -47,5 +56,6 @@ plugins/sdlc/
 ```sh
 claude --plugin-dir plugins/sdlc   # load the working copy in a session
 make validate
+make test
 make sync-pocock [REF=<sha>]       # re-vendor the skills, then review the diff
 ```

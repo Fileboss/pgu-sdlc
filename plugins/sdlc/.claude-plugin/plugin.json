@@ -1,9 +1,14 @@
 {
   "name": "sdlc",
   "description": "Modular AI SDLC for personal projects: per-project modules, stack profiles, gates and guardrails.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": {
     "name": "Fileboss"
   },
-  "keywords": ["sdlc", "workflow", "guardrails"]
+  "keywords": [
+    "sdlc",
+    "workflow",
+    "guardrails"
+  ],
+  "types": "./types/index.d.ts"
 }

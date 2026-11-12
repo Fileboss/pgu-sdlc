@@ -11,8 +11,9 @@ Usage:
   sdlc.py init --profiles python-uv[:dir],... --modules spec,plan,... [--autonomy] [--force]
   sdlc.py render
   sdlc.py get <key>
-  sdlc.py status
+  sdlc.py status [--json]
   sdlc.py next [--item <slug>]
+  sdlc.py set modules|autonomy|stop_check <value>
 """
 import argparse
 import json
@@ -289,9 +290,34 @@ def cmd_next(args):
     print("current: {} / {}".format(state["item"] or "no item", state["phase"] or "idle"))
 
 
-def cmd_status(_args):
+def cmd_set(args):
+    """Change one setting and re-render: what the mod's panel calls."""
+    cfg = load_config()
+    if args.key == "modules":
+        cfg["modules"] = [m for m in args.value.split(",") if m]
+    elif args.key in ("autonomy", "stop_check"):
+        if args.value not in ("true", "false"):
+            die(args.key + " takes true or false")
+        cfg[args.key] = args.value == "true"
+    else:
+        die("set takes modules, autonomy or stop_check")
+    write(CONFIG, dump_config(cfg))
+    render(load_config())
+
+
+def cmd_status(args):
     cfg = load_config()
     state = json.loads(read(STATE)) if os.path.exists(STATE) else {}
+    if args.json:
+        print(json.dumps({
+            "modules": cfg["modules"],
+            "allModules": MODULES,
+            "autonomy": cfg["autonomy"],
+            "phases": phases(cfg),
+            "item": state.get("item"),
+            "phase": state.get("phase"),
+        }))
+        return
     print("profiles: " + (", ".join(cfg["profiles"]) or "none"))
     print("modules:  " + (", ".join(cfg["modules"]) or "none"))
     print("phases:   " + " -> ".join(phases(cfg)))
@@ -310,12 +336,18 @@ def main():
     sub.add_parser("render")
     p = sub.add_parser("get")
     p.add_argument("key")
-    sub.add_parser("status")
+    p = sub.add_parser("status")
+    p.add_argument("--json", action="store_true")
     p = sub.add_parser("next")
     p.add_argument("--item")
+    p = sub.add_parser("set")
+    p.add_argument("key")
+    p.add_argument("value")
     args = parser.parse_args()
     if args.cmd == "init":
         cmd_init(args)
+    elif args.cmd == "set":
+        cmd_set(args)
     elif args.cmd == "next":
         cmd_next(args)
     elif args.cmd == "render":
